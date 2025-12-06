@@ -59,5 +59,10 @@ jobs:
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
         run: python TourismPackagePredictionAnalysis/hosting/hosting.py
+      - name: Auto Commit Updates to Main Branch
+        run: |
+        git add -A
+        git commit -m "Auto-update: new model, processed data, metrics" || echo "No changes to commit"
+        git push origin main || echo "Nothing to push"
 
 ```
