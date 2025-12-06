@@ -1,27 +1,32 @@
-from huggingface_hub.utils import RepositoryNotFoundError, HfHubHTTPError
+from huggingface_hub.utils import RepositoryNotFoundError
 from huggingface_hub import HfApi, create_repo, upload_file
 import os
 
+# HF token from GitHub Actions environment
+HF_TOKEN = os.environ["HF_TOKEN"]
+
 repo_id = "sumitsinha2603/TourismPackagePredictionAnalysis"
 repo_type = "dataset"
-dataset_file = "hf://datasets/sumitsinha2603/TourismPackagePredictionAnalysis/Xtrain.csv"
+dataset_file = "train.csv"   # path to your file
 
-# Initialize API client
-HF_TOKEN = os.environ['HF_TOKEN']
 api = HfApi(token=HF_TOKEN)
 
-# Step 1: Check if the space exists
+# Step 1: Check if repo exists
 try:
     api.repo_info(repo_id=repo_id, repo_type=repo_type)
-    print(f"Space '{repo_id}' already exists. Using it.")
+    print(f"Repo '{repo_id}' already exists. Using it.")
 except RepositoryNotFoundError:
-    print(f"Space '{repo_id}' not found. Creating new space...")
+    print(f"Repo '{repo_id}' not found. Creating new dataset repo...")
     create_repo(repo_id=repo_id, repo_type=repo_type, private=False)
-    print(f"Space '{repo_id}' created.")
+    print("Dataset repo created.")
 
-api.upload_folder(
+# Step 2: Upload file
+upload_file(
     path_or_fileobj=dataset_file,
     path_in_repo="train.csv",
     repo_id=repo_id,
-    repo_type="dataset"
+    repo_type="dataset",
+    token=HF_TOKEN
 )
+
+print("File uploaded successfully.")
