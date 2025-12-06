@@ -18,7 +18,6 @@ import mlflow
 # for hugging face space authentication to upload files
 from huggingface_hub import login, HfApi, create_repo
 from huggingface_hub.utils import RepositoryNotFoundError, HfHubHTTPError
-from google.colab import userdata
 
 mlflow.set_tracking_uri("http://localhost:5000")
 mlflow.set_experiment("mlops-training-experiment")
@@ -122,7 +121,7 @@ with mlflow.start_run():
     repo_id = "sumitsinha2603/TourismPackagePredictionAnalysisModel"
     repo_type = "model"
 
-    HF_TOKEN = userdata.get('hf_token')
+    HF_TOKEN = os.environ["HF_TOKEN"]
     api = HfApi(token=HF_TOKEN)
 
     # Step 1: Check if the space exists
