@@ -1,5 +1,5 @@
 from huggingface_hub.utils import RepositoryNotFoundError, HfHubHTTPError
-from huggingface_hub import HfApi, create_repo
+from huggingface_hub import HfApi, create_repo, upload_file
 from google.colab import userdata
 import os
 
@@ -7,7 +7,7 @@ repo_id = "sumitsinha2603/TourismPackagePredictionAnalysis"
 repo_type = "dataset"
 
 # Initialize API client
-HF_TOKEN = userdata.get('hf_token')
+HF_TOKEN = os.environ('hf_token')
 api = HfApi(token=HF_TOKEN)
 
 # Step 1: Check if the space exists
@@ -20,7 +20,8 @@ except RepositoryNotFoundError:
     print(f"Space '{repo_id}' created.")
 
 api.upload_folder(
-    folder_path="Tourism_Package_Prediction/data",
+    path_or_fileobj=dataset_file,
+    path_in_repo="train.csv",
     repo_id=repo_id,
-    repo_type=repo_type,
+    repo_type="dataset"
 )
