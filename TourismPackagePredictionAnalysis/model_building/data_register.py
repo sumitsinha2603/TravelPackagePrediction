@@ -4,6 +4,7 @@ import os
 
 repo_id = "sumitsinha2603/TourismPackagePredictionAnalysis"
 repo_type = "dataset"
+dataset_file = "hf://datasets/sumitsinha2603/TourismPackagePredictionAnalysis/Xtrain.csv"
 
 # Initialize API client
 HF_TOKEN = os.environ['HF_TOKEN']
