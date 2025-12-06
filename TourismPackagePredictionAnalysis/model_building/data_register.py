@@ -7,7 +7,7 @@ HF_TOKEN = os.environ["HF_TOKEN"]
 
 repo_id = "sumitsinha2603/TourismPackagePredictionAnalysis"
 repo_type = "dataset"
-dataset_file = "train.csv"   # path to your file
+dataset_file = "data/train.csv"   # path to your file
 
 api = HfApi(token=HF_TOKEN)
 
