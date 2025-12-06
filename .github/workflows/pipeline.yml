@@ -1,13 +1,13 @@
-```
 name: TourismPackagePredictionPipeline
 
 on:
   push:
     branches:
-      - main  # Automatically triggers on push to the main branch
-      
+      - main  # Auto-trigger
+  workflow_dispatch:  # Allow manual trigger
+
 permissions:
-  contents: write        # ⚠ Needed to auto-commit & push code updates
+  contents: write      # Needed for auto-commit/push
   id-token: write
   actions: read
 
@@ -17,57 +17,72 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+
       - name: Install Dependencies
         run: pip install -r TourismPackagePredictionAnalysis/GitHubdeployment/requirements.txt
+
       - name: Upload Dataset to Hugging Face Hub
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
         run: python TourismPackagePredictionAnalysis/model_building/data_register.py
+
 
   data-prep:
     needs: register-dataset
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+
       - name: Install Dependencies
         run: pip install -r TourismPackagePredictionAnalysis/GitHubdeployment/requirements.txt
+
+      - name: Run Data Preprocessing
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
-        run: TourismPackagePredictionAnalysis/model_building/prep.py
+        run: python TourismPackagePredictionAnalysis/model_building/prep.py
 
 
-  model-traning:
+  model-training:
     needs: data-prep
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+
       - name: Install Dependencies
-        run: pip install -r TourismPackagePredictionAnalysis/GitHubdeployment/requirements.txt
+        run: |
+          pip install -r TourismPackagePredictionAnalysis/GitHubdeployment/requirements.txt
+          pip install mlflow
+
       - name: Start MLflow Server
         run: |
-          nohup mlflow ui --host 0.0.0.0 --port 5000 &  # Run MLflow UI in the background
-          sleep 5  # Wait for a moment to let the server starts
-      - name: Model Building
+          nohup mlflow ui --host 0.0.0.0 --port 5000 &
+          sleep 10
+
+      - name: Train ML Model
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
         run: python TourismPackagePredictionAnalysis/model_building/train.py
 
 
   deploy-hosting:
+    needs: [model-training, data-prep, register-dataset]
     runs-on: ubuntu-latest
-    needs: [model-traning,data-prep,register-dataset]
+
     steps:
       - uses: actions/checkout@v3
+
       - name: Install Dependencies
         run: pip install -r TourismPackagePredictionAnalysis/GitHubdeployment/requirements.txt
-      - name: Push files to Frontend Hugging Face Space
+
+      - name: Deploy Updated Files to Hugging Face Space
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
         run: python TourismPackagePredictionAnalysis/hosting/hosting.py
+
       - name: Auto Commit Updates to Main Branch
         run: |
-        git add -A
-        git commit -m "Auto-update: new model, processed data, metrics" || echo "No changes to commit"
-        git push origin main || echo "Nothing to push"
-
-```
+          git config --global user.email "actions@github.com"
+          git config --global user.name "GitHub Actions"
+          git add -A
+          git commit -m "Auto-update: new model, processed data, metrics" || echo "No changes to commit"
+          git push origin main || echo "Nothing to push"
