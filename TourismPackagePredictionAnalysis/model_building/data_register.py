@@ -6,7 +6,7 @@ repo_id = "sumitsinha2603/TourismPackagePredictionAnalysis"
 repo_type = "dataset"
 
 # Initialize API client
-HF_TOKEN = os.environ['hf_token']
+HF_TOKEN = os.environ['HF_TOKEN']
 api = HfApi(token=HF_TOKEN)
 
 # Step 1: Check if the space exists
